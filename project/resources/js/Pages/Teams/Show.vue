@@ -4,13 +4,13 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { computed } from 'vue';
 
 // Import shadcn-vue components
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/Components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Badge } from "@/Components/ui/badge";
+import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
+import { Separator } from "@/Components/ui/separator";
 
 const props = defineProps({
     team: Object,

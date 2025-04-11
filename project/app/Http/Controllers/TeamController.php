@@ -7,6 +7,7 @@ use App\Models\League;
 use App\Models\Season;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class TeamController extends Controller
 {
@@ -15,6 +16,9 @@ class TeamController extends Controller
      */
     public function index(Request $request)
     {
+        // Log the start of the method for debugging
+        Log::info('TeamController@index started', ['request' => $request->all()]);
+
         // Get filter parameters from the request
         $leagueId = $request->input('league');
         $seasonId = $request->input('season');
@@ -22,6 +26,12 @@ class TeamController extends Controller
         // Query leagues and seasons for filters
         $leagues = League::orderBy('name')->get();
         $seasons = Season::orderBy('start_date', 'desc')->get();
+        
+        // Log filter entities
+        Log::info('Filter entities loaded', [
+            'leagues_count' => $leagues->count(),
+            'seasons_count' => $seasons->count(),
+        ]);
         
         // Base query for teams with necessary relationships
         $teamsQuery = Team::with(['league', 'season', 'association']);
@@ -41,7 +51,14 @@ class TeamController extends Controller
                            ->paginate(20)
                            ->withQueryString();
         
-        return Inertia::render('Teams/Index', [
+        // Log the teams query results
+        Log::info('Teams query executed', [
+            'teams_count' => $teams->count(),
+            'total_pages' => $teams->lastPage(),
+            'current_page' => $teams->currentPage(),
+        ]);
+        
+        $response = [
             'teams' => $teams,
             'leagues' => $leagues,
             'seasons' => $seasons,
@@ -49,7 +66,16 @@ class TeamController extends Controller
                 'league' => $leagueId,
                 'season' => $seasonId,
             ],
+        ];
+        
+        // Log the final response structure (excluding large data)
+        Log::info('TeamController@index response prepared', [
+            'teams_count' => $teams->count(),
+            'leagues_count' => $leagues->count(),
+            'seasons_count' => $seasons->count(),
         ]);
+        
+        return Inertia::render('Teams/Index', $response);
     }
     
     /**

@@ -4,14 +4,23 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { computed, watch, ref } from 'vue';
 
 // Import shadcn-vue components
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { Badge } from "@/Components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/Components/ui/alert";
+import { Separator } from "@/Components/ui/separator";
+
+// Fix pagination imports
+import { 
+    Pagination,
+    PaginationList as PaginationContent,
+    PaginationListItem as PaginationItem,
+    PaginationNext,
+    PaginationPrev as PaginationPrevious,
+    PaginationEllipsis
+} from "@/Components/ui/pagination";
 
 const props = defineProps({
     teams: Object,
@@ -185,9 +194,13 @@ const teamsByLeague = computed(() => {
                             
                             <template v-for="(link, i) in teams.links" :key="i">
                                 <PaginationItem v-if="link.url && !link.label.includes('Previous') && !link.label.includes('Next')">
-                                    <PaginationLink :href="link.url" :isActive="link.active">
+                                    <a 
+                                        :href="link.url" 
+                                        class="flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                                        :class="{ 'bg-primary text-primary-foreground hover:bg-primary/90': link.active }"
+                                    >
                                         {{ link.label }}
-                                    </PaginationLink>
+                                    </a>
                                 </PaginationItem>
                                 <PaginationItem v-else-if="link.label === '...'" class="cursor-default">
                                     <PaginationEllipsis />

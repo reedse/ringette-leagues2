@@ -81,6 +81,31 @@
         *   Recent games with dynamic result badges
         *   Fully responsive layout with mobile optimization
 
+*   **Game Details:**
+    *   Created GameController show method to load detailed game information with related models.
+    *   Enhanced Games/Show.vue page with shadcn-vue components for a comprehensive game view:
+        *   Game header section with teams, scores and match metadata
+        *   Score display with dynamic result indicators
+        *   Tab system for organizing game content (stats, penalties, videos)
+        *   Player statistics tables for both teams with avatars and stat columns
+        *   Penalty tracking table with team and infraction details
+        *   Video embedding system with YouTube integration
+        *   Coach-created clips section displaying timestamps and descriptions
+        *   Added player profile links to enable easy navigation to individual player pages
+
+*   **Player Profiles:**
+    *   Designed and implemented player profile system:
+        *   Created PlayerController with methods for browsing and viewing players
+        *   Built player listing page with filtering by team, season, and position
+        *   Developed comprehensive Player/Show.vue profile page featuring:
+            *   Player header with avatar and essential information
+            *   Career statistics summary with key metrics (goals, assists, etc.)
+            *   Recent games tab with performance indicators and game links
+            *   Team history tab showing career progression across teams
+            *   Penalties tab displaying infraction history
+        *   Implemented complete cross-linking with games and teams pages
+        *   Added responsive design with mobile-first approach using Tailwind
+
 *   **UI/UX Improvements:**
     *   Used shadcn-vue Badge components for status indicators
     *   Implemented Avatar component with fallback initials generation

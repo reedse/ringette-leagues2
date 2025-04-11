@@ -10,13 +10,27 @@ const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
-    resolve: (name) =>
-        resolvePageComponent(
-            `./Pages/${name}.vue`,
-            import.meta.glob('./Pages/**/*.vue'),
-        ),
+    resolve: (name) => {
+        console.log(`Resolving page component: ${name}`);
+        try {
+            const page = resolvePageComponent(
+                `./Pages/${name}.vue`,
+                import.meta.glob('./Pages/**/*.vue'),
+            );
+            return page;
+        } catch (error) {
+            console.error(`Error resolving page component: ${name}`, error);
+            throw error;
+        }
+    },
     setup({ el, App, props, plugin }) {
-        return createApp({ render: () => h(App, props) })
+        return createApp({ 
+            render: () => h(App, props),
+            errorCaptured(err, instance, info) {
+                console.error('Inertia Error:', err, info);
+                return false;
+            }
+        })
             .use(plugin)
             .use(ZiggyVue)
             .mount(el);

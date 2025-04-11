@@ -4,12 +4,14 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { format } from 'date-fns';
 
 // Import shadcn-vue components
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/Components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Badge } from "@/Components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
+import { Separator } from "@/Components/ui/separator";
+import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
+import { ExternalLink } from 'lucide-vue-next';
 
 const props = defineProps({
     game: Object,
@@ -48,6 +50,28 @@ const getResultText = (game) => {
     } else {
         return 'Tie game';
     }
+};
+
+// Generate player initials for avatar
+const getPlayerInitials = (player) => {
+    return `${player.first_name[0]}${player.last_name[0]}`.toUpperCase();
+};
+
+// Format penalty time in appropriate format
+const formatPenaltyTime = (minutes) => {
+    return `${minutes} min`;
+};
+
+// Helper to extract YouTube video ID from URL
+const getYoutubeEmbedUrl = (url) => {
+    if (!url) return null;
+    
+    // Try to extract YouTube video ID
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    const videoId = (match && match[7].length === 11) ? match[7] : null;
+    
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 };
 </script>
 
@@ -146,10 +170,83 @@ const getResultText = (game) => {
                                 <CardDescription>Individual player statistics for this game</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div class="text-center">
-                                    <p class="text-muted-foreground">
-                                        This tab will display individual player statistics for this game.
-                                    </p>
+                                <div v-if="!game.playerStats || game.playerStats.length === 0" class="py-8 text-center">
+                                    <p class="text-muted-foreground">No player statistics recorded for this game yet.</p>
+                                </div>
+                                <div v-else>
+                                    <!-- Home Team Stats -->
+                                    <h3 class="mb-3 text-lg font-semibold">{{ game.home_team.name }}</h3>
+                                    <Table class="mb-8">
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead class="w-[50px]">#</TableHead>
+                                                <TableHead>Player</TableHead>
+                                                <TableHead class="text-right">G</TableHead>
+                                                <TableHead class="text-right">A</TableHead>
+                                                <TableHead class="text-right">Shots</TableHead>
+                                                <TableHead class="text-right">+/-</TableHead>
+                                                <TableHead class="text-right">Profile</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            <TableRow v-for="stat in game.playerStats.filter(s => s.player?.team_id === game.home_team_id)" 
+                                                     :key="stat.id">
+                                                <TableCell>{{ stat.player?.jersey_number || '-' }}</TableCell>
+                                                <TableCell class="flex items-center gap-2">
+                                                    <Avatar class="h-6 w-6">
+                                                        <AvatarFallback>{{ getPlayerInitials(stat.player) }}</AvatarFallback>
+                                                    </Avatar>
+                                                    {{ stat.player?.first_name }} {{ stat.player?.last_name }}
+                                                </TableCell>
+                                                <TableCell class="text-right">{{ stat.goals || 0 }}</TableCell>
+                                                <TableCell class="text-right">{{ stat.assists || 0 }}</TableCell>
+                                                <TableCell class="text-right">{{ stat.shots || 0 }}</TableCell>
+                                                <TableCell class="text-right">{{ stat.plus_minus || 0 }}</TableCell>
+                                                <TableCell class="text-right">
+                                                    <Button variant="ghost" size="sm" asChild>
+                                                        <Link :href="route('players.show', stat.player.id)">View</Link>
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        </TableBody>
+                                    </Table>
+                                    
+                                    <!-- Away Team Stats -->
+                                    <h3 class="mb-3 text-lg font-semibold">{{ game.away_team.name }}</h3>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead class="w-[50px]">#</TableHead>
+                                                <TableHead>Player</TableHead>
+                                                <TableHead class="text-right">G</TableHead>
+                                                <TableHead class="text-right">A</TableHead>
+                                                <TableHead class="text-right">Shots</TableHead>
+                                                <TableHead class="text-right">+/-</TableHead>
+                                                <TableHead class="text-right">Profile</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            <TableRow v-for="stat in game.playerStats.filter(s => s.player?.team_id === game.away_team_id)" 
+                                                     :key="stat.id">
+                                                <TableCell>{{ stat.player?.jersey_number || '-' }}</TableCell>
+                                                <TableCell class="flex items-center gap-2">
+                                                    <Avatar class="h-6 w-6">
+                                                        <AvatarFallback>{{ getPlayerInitials(stat.player) }}</AvatarFallback>
+                                                    </Avatar>
+                                                    {{ stat.player?.first_name }} {{ stat.player?.last_name }}
+                                                </TableCell>
+                                                <TableCell class="text-right">{{ stat.goals || 0 }}</TableCell>
+                                                <TableCell class="text-right">{{ stat.assists || 0 }}</TableCell>
+                                                <TableCell class="text-right">{{ stat.shots || 0 }}</TableCell>
+                                                <TableCell class="text-right">{{ stat.plus_minus || 0 }}</TableCell>
+                                                <TableCell class="text-right">
+                                                    <Button variant="ghost" size="sm" asChild>
+                                                        <Link :href="route('players.show', stat.player.id)">View</Link>
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        </TableBody>
+                                    </Table>
                                 </div>
                             </CardContent>
                         </Card>
@@ -162,11 +259,40 @@ const getResultText = (game) => {
                                 <CardDescription>Penalties assessed during the game</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div class="text-center">
-                                    <p class="text-muted-foreground">
-                                        This tab will display penalties assessed during the game.
-                                    </p>
+                                <div v-if="!game.penalties || game.penalties.length === 0" class="py-8 text-center">
+                                    <p class="text-muted-foreground">No penalties recorded for this game.</p>
                                 </div>
+                                <Table v-else>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Period</TableHead>
+                                            <TableHead>Team</TableHead>
+                                            <TableHead>Player</TableHead>
+                                            <TableHead>Infraction</TableHead>
+                                            <TableHead class="text-right">Minutes</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        <TableRow v-for="penalty in game.penalties" :key="penalty.id">
+                                            <TableCell>{{ penalty.period }}</TableCell>
+                                            <TableCell>
+                                                {{ penalty.player?.team_id === game.home_team_id ? game.home_team.name : game.away_team.name }}
+                                            </TableCell>
+                                            <TableCell class="flex items-center gap-2">
+                                                <Avatar class="h-6 w-6">
+                                                    <AvatarFallback>{{ getPlayerInitials(penalty.player) }}</AvatarFallback>
+                                                </Avatar>
+                                                {{ penalty.player?.first_name }} {{ penalty.player?.last_name }}
+                                            </TableCell>
+                                            <TableCell>{{ penalty.penaltyCode?.name }}</TableCell>
+                                            <TableCell class="text-right">
+                                                <Badge variant="outline">
+                                                    {{ formatPenaltyTime(penalty.minutes) }}
+                                                </Badge>
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -178,10 +304,61 @@ const getResultText = (game) => {
                                 <CardDescription>Game video and coach clips</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div class="text-center">
-                                    <p class="text-muted-foreground">
-                                        This tab will display the game video (if available) and any coach-created clips.
-                                    </p>
+                                <!-- Game Video -->
+                                <div v-if="game.video_url" class="mb-8">
+                                    <h3 class="text-lg font-medium mb-4">Game Video</h3>
+                                    <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden">
+                                        <iframe 
+                                            v-if="getYoutubeEmbedUrl(game.video_url)"
+                                            class="w-full h-full rounded-lg"
+                                            :src="getYoutubeEmbedUrl(game.video_url)"
+                                            title="Game Video"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen>
+                                        </iframe>
+                                        <div v-else class="w-full h-full flex items-center justify-center bg-muted rounded-lg">
+                                            <Button variant="outline" asChild>
+                                                <a :href="game.video_url" target="_blank" rel="noopener noreferrer">
+                                                    <ExternalLink class="mr-2 h-4 w-4" />
+                                                    View Video
+                                                </a>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Coach Clips -->
+                                <div>
+                                    <h3 class="text-lg font-medium mb-4">Clips</h3>
+                                    
+                                    <div v-if="!game.clips || game.clips.length === 0" class="text-center py-6">
+                                        <p class="text-muted-foreground">No clips have been created for this game yet.</p>
+                                    </div>
+                                    
+                                    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Card v-for="clip in game.clips" :key="clip.id" class="overflow-hidden">
+                                            <CardHeader class="pb-2">
+                                                <CardTitle class="text-lg">{{ clip.title }}</CardTitle>
+                                                <CardDescription>
+                                                    {{ clip.start_time }}s to {{ clip.end_time }}s
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent class="pb-2">
+                                                <p class="text-sm">{{ clip.description }}</p>
+                                            </CardContent>
+                                            <CardFooter class="flex justify-between pt-2">
+                                                <p class="text-xs text-muted-foreground">
+                                                    Shared with {{ clip.players?.length || 0 }} players
+                                                </p>
+                                                <Button size="sm" asChild>
+                                                    <a :href="clip.video_url" target="_blank" rel="noopener noreferrer">
+                                                        View Clip
+                                                    </a>
+                                                </Button>
+                                            </CardFooter>
+                                        </Card>
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>

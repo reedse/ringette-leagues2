@@ -12,6 +12,7 @@ use App\Http\Controllers\CoachTeamController;
 use App\Http\Controllers\ClipController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\PlayerController;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +39,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Teams routes
     Route::get('/teams', [TeamController::class, 'index'])->name('teams.index');
     Route::get('/teams/{team}', [TeamController::class, 'show'])->name('teams.show');
+    
+    // Players routes
+    Route::get('/players', [PlayerController::class, 'index'])->name('players.index');
+    Route::get('/players/{player}', [PlayerController::class, 'show'])->name('players.show');
 
     // Player routes
     Route::prefix('player')->middleware(['auth', 'verified', CheckRole::class.':player'])->group(function () {

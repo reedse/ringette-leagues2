@@ -2,19 +2,19 @@
 import { ref, computed } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/Components/ui/button';
+import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/Components/ui/dropdown-menu';
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
-} from '@/components/ui/sheet';
+} from '@/Components/ui/sheet';
 
 const showingNavigationDropdown = ref(false);
 const showingSidebar = ref(true);
@@ -30,8 +30,18 @@ const toggleSidebar = () => {
 const getNavigationItems = computed(() => {
     const commonItems = [
         { name: 'Dashboard', route: 'dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-        { name: 'Games', route: 'games.index', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
-        { name: 'Teams', route: 'teams.index', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
+        { 
+            name: 'Games', 
+            href: '/games', 
+            active: route().current('games.index') || route().current('games.show'), 
+            icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' 
+        },
+        { 
+            name: 'Teams', 
+            href: '/teams', 
+            active: route().current('teams.index') || route().current('teams.show'), 
+            icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' 
+        },
     ];
 
     // Player-specific items
@@ -93,38 +103,73 @@ const getNavigationItems = computed(() => {
             <!-- Sidebar Navigation -->
             <nav class="mt-4 px-2">
                 <div class="space-y-1">
-                    <Link
-                        v-for="item in getNavigationItems"
-                        :key="item.name"
-                        :href="route(item.route)"
-                        :class="[
-                            route().current(item.route)
-                                ? 'bg-primary-500 text-white'
-                                : 'text-gray-600 hover:bg-gray-50 hover:text-primary-700',
-                            'group flex items-center rounded-md px-2 py-2 text-sm font-medium'
-                        ]"
-                    >
-                        <svg
-                            class="mr-3 h-5 w-5 flex-shrink-0"
+                    <template v-for="item in getNavigationItems" :key="item.name">
+                        <!-- For items with route -->
+                        <Link
+                            v-if="item.route"
+                            :href="route(item.route)"
                             :class="[
                                 route().current(item.route)
-                                    ? 'text-white'
-                                    : 'text-gray-400 group-hover:text-primary-500'
+                                    ? 'bg-primary-500 text-white'
+                                    : 'text-gray-600 hover:bg-gray-50 hover:text-primary-700',
+                                'group flex items-center rounded-md px-2 py-2 text-sm font-medium'
                             ]"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                :d="item.icon"
-                            ></path>
-                        </svg>
-                        {{ item.name }}
-                    </Link>
+                            <svg
+                                class="mr-3 h-5 w-5 flex-shrink-0"
+                                :class="[
+                                    route().current(item.route)
+                                        ? 'text-white'
+                                        : 'text-gray-400 group-hover:text-primary-500'
+                                ]"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    :d="item.icon"
+                                ></path>
+                            </svg>
+                            {{ item.name }}
+                        </Link>
+                        
+                        <!-- For items with direct href -->
+                        <a
+                            v-else
+                            :href="item.href"
+                            :class="[
+                                item.active
+                                    ? 'bg-primary-500 text-white'
+                                    : 'text-gray-600 hover:bg-gray-50 hover:text-primary-700',
+                                'group flex items-center rounded-md px-2 py-2 text-sm font-medium'
+                            ]"
+                        >
+                            <svg
+                                class="mr-3 h-5 w-5 flex-shrink-0"
+                                :class="[
+                                    item.active
+                                        ? 'text-white'
+                                        : 'text-gray-400 group-hover:text-primary-500'
+                                ]"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    :d="item.icon"
+                                ></path>
+                            </svg>
+                            {{ item.name }}
+                        </a>
+                    </template>
                 </div>
             </nav>
 
@@ -184,38 +229,73 @@ const getNavigationItems = computed(() => {
                                 </div>
                                 <nav class="mt-4 px-2">
                                     <div class="space-y-1">
-                                        <Link
-                                            v-for="item in getNavigationItems"
-                                            :key="item.name"
-                                            :href="route(item.route)"
-                                            :class="[
-                                                route().current(item.route)
-                                                    ? 'bg-primary-500 text-white'
-                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-primary-700',
-                                                'group flex items-center rounded-md px-2 py-2 text-sm font-medium'
-                                            ]"
-                                        >
-                                            <svg
-                                                class="mr-3 h-5 w-5 flex-shrink-0"
+                                        <template v-for="item in getNavigationItems" :key="item.name">
+                                            <!-- For items with route -->
+                                            <Link
+                                                v-if="item.route"
+                                                :href="route(item.route)"
                                                 :class="[
                                                     route().current(item.route)
-                                                        ? 'text-white'
-                                                        : 'text-gray-400 group-hover:text-primary-500'
+                                                        ? 'bg-primary-500 text-white'
+                                                        : 'text-gray-600 hover:bg-gray-50 hover:text-primary-700',
+                                                    'group flex items-center rounded-md px-2 py-2 text-sm font-medium'
                                                 ]"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                                xmlns="http://www.w3.org/2000/svg"
                                             >
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    :d="item.icon"
-                                                ></path>
-                                            </svg>
-                                            {{ item.name }}
-                                        </Link>
+                                                <svg
+                                                    class="mr-3 h-5 w-5 flex-shrink-0"
+                                                    :class="[
+                                                        route().current(item.route)
+                                                            ? 'text-white'
+                                                            : 'text-gray-400 group-hover:text-primary-500'
+                                                    ]"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        :d="item.icon"
+                                                    ></path>
+                                                </svg>
+                                                {{ item.name }}
+                                            </Link>
+                                            
+                                            <!-- For items with direct href -->
+                                            <a
+                                                v-else
+                                                :href="item.href"
+                                                :class="[
+                                                    item.active
+                                                        ? 'bg-primary-500 text-white'
+                                                        : 'text-gray-600 hover:bg-gray-50 hover:text-primary-700',
+                                                    'group flex items-center rounded-md px-2 py-2 text-sm font-medium'
+                                                ]"
+                                            >
+                                                <svg
+                                                    class="mr-3 h-5 w-5 flex-shrink-0"
+                                                    :class="[
+                                                        item.active
+                                                            ? 'text-white'
+                                                            : 'text-gray-400 group-hover:text-primary-500'
+                                                    ]"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        :d="item.icon"
+                                                    ></path>
+                                                </svg>
+                                                {{ item.name }}
+                                            </a>
+                                        </template>
                                     </div>
                                 </nav>
                                 <div class="absolute bottom-0 flex w-full flex-col border-t border-gray-200 bg-white p-4">

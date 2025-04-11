@@ -69,8 +69,8 @@
 - [✓] Implement teams listing page
 - [✓] Create detailed team page
 - [✓] Build games listing page
-- [ ] Design detailed game page
-- [ ] Implement player profiles
+- [✓] Design detailed game page
+- [✓] Implement player profiles
 
 ## 8. Real-time Notifications
 
