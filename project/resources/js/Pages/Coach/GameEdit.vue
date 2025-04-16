@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from '@/components/ui/toast/use-toast';
 
 const props = defineProps({
     game: Object,
@@ -25,40 +26,58 @@ const props = defineProps({
     penaltyCodes: Array,
 });
 
+const { toast } = useToast();
 const activeTab = ref('details');
+
+// Determine if the current team is the home team
+const isHome = computed(() => props.team.id === props.game.home_team_id);
+const opponentTeam = computed(() => isHome.value ? props.game.awayTeam : props.game.homeTeam);
 
 // Game details form
 const gameForm = useForm({
-    location: props.game.location || '',
+    game_id: props.game.id,
+    game_number: props.game.game_number,
+    location: props.game.location,
+    date: props.game.date.split(' ')[0], // Just the date part
+    time: props.game.date.split(' ')[1].substring(0, 5), // Just HH:MM
     video_url: props.game.video_url || '',
-    status: props.game.status || 'Scheduled',
-    home_score: props.game.home_score !== null ? props.game.home_score : '',
-    away_score: props.game.away_score !== null ? props.game.away_score : '',
+    home_score: props.game.home_score ?? 0,
+    away_score: props.game.away_score ?? 0,
+});
+
+// Computed properties for v-model
+const teamScore = computed({
+  get: () => isHome.value ? gameForm.home_score : gameForm.away_score,
+  set: (value) => {
+    if (isHome.value) {
+      gameForm.home_score = value;
+    } else {
+      gameForm.away_score = value;
+    }
+  }
+});
+
+const opponentScore = computed({
+  get: () => isHome.value ? gameForm.away_score : gameForm.home_score,
+  set: (value) => {
+    if (isHome.value) {
+      gameForm.away_score = value;
+    } else {
+      gameForm.home_score = value;
+    }
+  }
 });
 
 // Build player stats form data from existing stats
 const playerStatsForm = useForm({
-    stats: props.roster.map(player => {
-        const existingStat = props.playerStats.find(stat => stat.player_id === player.id);
-        return {
-            player_id: player.id,
-            goals: existingStat ? existingStat.goals : 0,
-            assists: existingStat ? existingStat.assists : 0,
-            plus_minus: existingStat ? existingStat.plus_minus : 0,
-        };
-    }),
+    game_id: props.game.id,
+    stats: props.playerStats.map(stat => ({ ...stat })),
 });
 
 // Build penalties form data from existing penalties
 const penaltiesForm = useForm({
-    penalties: [...props.penalties.map(penalty => ({
-        id: penalty.id,
-        player_id: penalty.player_id,
-        penalty_code_id: penalty.penalty_code_id,
-        period: penalty.period,
-        time: penalty.time,
-        delete: false,
-    }))],
+    game_id: props.game.id,
+    penalties: props.penalties.map(p => ({ ...p, delete: false })).concat(props.penalties.length === 0 ? [createNewPenalty()] : []),
 });
 
 // Function to add a new penalty to the form
@@ -131,6 +150,10 @@ const playerById = (id) => {
 const penaltyCodeById = (id) => {
     return props.penaltyCodes.find(p => p.id === id);
 };
+
+function createNewPenalty() {
+    // ... existing createNewPenalty ...
+}
 </script>
 
 <template>
@@ -170,33 +193,33 @@ const penaltyCodeById = (id) => {
                                     <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                                         <div class="sm:col-span-3">
                                             <FormItem>
-                                                <FormLabel for="status">Game Status</FormLabel>
-                                                <Select v-model="gameForm.status">
-                                                    <FormControl>
-                                                        <SelectTrigger id="status">
-                                                            <SelectValue placeholder="Select status" />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <SelectItem value="Scheduled">Scheduled</SelectItem>
-                                                        <SelectItem value="In Progress">In Progress</SelectItem>
-                                                        <SelectItem value="Completed">Completed</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage>{{ gameForm.errors.status }}</FormMessage>
+                                                <FormLabel for="game_number">Game Number</FormLabel>
+                                                <Input id="game_number" type="text" v-model="gameForm.game_number" />
+                                                <FormMessage>{{ gameForm.errors.game_number }}</FormMessage>
                                             </FormItem>
                                         </div>
 
                                         <div class="sm:col-span-3">
                                             <FormItem>
-                                                <FormLabel for="location">Location (Optional)</FormLabel>
-                                                <Input
-                                                    id="location"
-                                                    type="text"
-                                                    v-model="gameForm.location"
-                                                    placeholder="e.g. City Arena, Rink 2"
-                                                />
+                                                <FormLabel for="location">Location</FormLabel>
+                                                <Input id="location" type="text" v-model="gameForm.location" />
                                                 <FormMessage>{{ gameForm.errors.location }}</FormMessage>
+                                            </FormItem>
+                                        </div>
+
+                                        <div class="sm:col-span-3">
+                                            <FormItem>
+                                                <FormLabel for="date">Date</FormLabel>
+                                                <Input id="date" type="date" v-model="gameForm.date" />
+                                                <FormMessage>{{ gameForm.errors.date }}</FormMessage>
+                                            </FormItem>
+                                        </div>
+
+                                        <div class="sm:col-span-3">
+                                            <FormItem>
+                                                <FormLabel for="time">Time</FormLabel>
+                                                <Input id="time" type="time" v-model="gameForm.time" />
+                                                <FormMessage>{{ gameForm.errors.time }}</FormMessage>
                                             </FormItem>
                                         </div>
 
@@ -220,7 +243,7 @@ const penaltyCodeById = (id) => {
                                                     :id="isHome ? 'home_score' : 'away_score'"
                                                     type="number"
                                                     min="0"
-                                                    v-model="isHome ? gameForm.home_score : gameForm.away_score"
+                                                    v-model="teamScore"
                                                 />
                                                 <FormMessage>{{ isHome ? gameForm.errors.home_score : gameForm.errors.away_score }}</FormMessage>
                                             </FormItem>
@@ -228,12 +251,12 @@ const penaltyCodeById = (id) => {
 
                                         <div class="sm:col-span-3">
                                             <FormItem>
-                                                <FormLabel :for="isHome ? 'away_score' : 'home_score'">{{ isHome ? game.awayTeam.name : game.homeTeam.name }} Score</FormLabel>
+                                                <FormLabel :for="isHome ? 'away_score' : 'home_score'">{{ opponentTeam.name }} Score</FormLabel>
                                                 <Input
                                                     :id="isHome ? 'away_score' : 'home_score'"
                                                     type="number"
                                                     min="0"
-                                                    v-model="isHome ? gameForm.away_score : gameForm.home_score"
+                                                    v-model="opponentScore"
                                                 />
                                                 <FormMessage>{{ isHome ? gameForm.errors.away_score : gameForm.errors.home_score }}</FormMessage>
                                             </FormItem>

@@ -1,7 +1,6 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 
 // Import shadcn-vue components
@@ -15,13 +14,14 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
     Pagination, 
-    PaginationContent, 
+    PaginationList, 
     PaginationEllipsis, 
-    PaginationItem, 
-    PaginationLink, 
-    PaginationNext, 
-    PaginationPrevious
+    PaginationListItem, 
+    PaginationPrev, 
+    PaginationNext
 } from "@/components/ui/pagination";
+import { cn } from '@/lib/utils';
+import { buttonVariants } from '@/components/ui/button';
 
 const props = defineProps({
     players: Object,
@@ -208,28 +208,55 @@ watch(() => filterForm.value, handleFilterChange, { deep: true });
                         </div>
                         
                         <!-- Pagination -->
-                        <div v-if="players.links && players.links.length > 3" class="mt-6">
-                            <Pagination>
-                                <PaginationContent>
-                                    <PaginationItem v-if="players.prev_page_url">
-                                        <PaginationPrevious :href="players.prev_page_url" />
-                                    </PaginationItem>
-                                    
-                                    <template v-for="(link, i) in players.links" :key="i">
-                                        <PaginationItem v-if="i !== 0 && i !== players.links.length - 1 && link.url" :class="{ 'hidden sm:inline-flex': players.links.length > 7 && !link.active && ![1, 2, players.links.length - 3, players.links.length - 2].includes(i) }">
-                                            <PaginationLink :href="link.url" :active="link.active">
-                                                {{ link.label.replace('&laquo;', '').replace('&raquo;', '') }}
-                                            </PaginationLink>
-                                        </PaginationItem>
-                                        <PaginationItem v-else-if="i !== 0 && i !== players.links.length - 1 && !link.url && players.links.length > 7" class="hidden sm:inline-flex">
+                        <div v-if="players.links && players.links.length > 3" class="mt-6 flex justify-center">
+                            <Pagination
+                                :total="players.total"
+                                :per-page="players.per_page"
+                                :current-page="players.current_page"
+                                v-slot="{ pages, isFirstPage, isLastPage }" 
+                                show-edges
+                            >
+                                <PaginationList>
+                                    <PaginationListItem>
+                                        <PaginationPrev 
+                                            :href="players.prev_page_url"
+                                            :class="['pe-2.5', { 'opacity-50 pointer-events-none': isFirstPage }]" 
+                                            :as-child="!isFirstPage"
+                                        >
+                                            <Link v-if="!isFirstPage" :href="players.prev_page_url" preserve-scroll>Prev</Link>
+                                            <span v-else>Prev</span>
+                                        </PaginationPrev>
+                                    </PaginationListItem>
+
+                                    <template v-for="(page, index) in pages" :key="index">
+                                        <PaginationListItem v-if="page.type === 'page'" :value="page.value">
+                                            <Link 
+                                                :href="page.url"
+                                                :class="cn(
+                                                    buttonVariants({ variant: page.value === players.current_page ? 'outline' : 'ghost' }), 
+                                                    'h-9 w-9 p-0'
+                                                )"
+                                                preserve-scroll
+                                            >
+                                                {{ page.value }}
+                                            </Link>
+                                        </PaginationListItem>
+                                        <PaginationListItem v-else :key="`ellipsis-${index}`">
                                             <PaginationEllipsis />
-                                        </PaginationItem>
+                                        </PaginationListItem>
                                     </template>
-                                    
-                                    <PaginationItem v-if="players.next_page_url">
-                                        <PaginationNext :href="players.next_page_url" />
-                                    </PaginationItem>
-                                </PaginationContent>
+
+                                    <PaginationListItem>
+                                        <PaginationNext 
+                                            :href="players.next_page_url"
+                                            :class="[ 'ps-2.5', { 'opacity-50 pointer-events-none': isLastPage }]"
+                                            :as-child="!isLastPage"
+                                        >
+                                            <Link v-if="!isLastPage" :href="players.next_page_url" preserve-scroll>Next</Link>
+                                            <span v-else>Next</span>
+                                        </PaginationNext>
+                                    </PaginationListItem>
+                                </PaginationList>
                             </Pagination>
                         </div>
                     </CardContent>
