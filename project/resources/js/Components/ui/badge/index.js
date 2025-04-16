@@ -14,6 +14,12 @@ export const badgeVariants = cva(
         destructive:
           'border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80',
         outline: 'text-foreground',
+        // Custom status badges
+        'badge-completed': 'badge-completed',
+        'badge-scheduled': 'badge-scheduled',
+        'badge-in-progress': 'badge-in-progress',
+        'badge-cancelled': 'badge-cancelled',
+        'badge-draft': 'badge-draft',
       },
     },
     defaultVariants: {

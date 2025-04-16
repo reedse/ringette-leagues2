@@ -2,19 +2,19 @@
 import { ref, computed } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Button } from '@/Components/ui/button';
-import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/Components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
-} from '@/Components/ui/sheet';
+} from '@/components/ui/sheet';
 
 const showingNavigationDropdown = ref(false);
 const showingSidebar = ref(true);
@@ -81,19 +81,19 @@ const getNavigationItems = computed(() => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-100">
+    <div class="min-h-screen bg-background">
         <!-- Sidebar - Hidden on mobile, visible on desktop -->
         <div
-            class="fixed inset-y-0 left-0 z-10 hidden w-64 transform bg-white shadow-lg transition-all duration-300 md:block"
+            class="fixed inset-y-0 left-0 z-10 hidden w-64 transform bg-card shadow-lg transition-all duration-300 md:block"
             :class="{ '-translate-x-full': !showingSidebar, 'translate-x-0': showingSidebar }"
         >
             <!-- Sidebar Header -->
-            <div class="flex h-16 items-center justify-between border-b border-ringette-blue bg-ringette-blue px-4">
+            <div class="flex h-16 items-center justify-between border-b border-primary bg-primary px-4">
                 <Link :href="route('dashboard')" class="flex items-center space-x-2">
-                    <ApplicationLogo class="h-9 w-9 fill-current text-white" />
-                    <span class="text-lg font-semibold text-white">Ringette League</span>
+                    <ApplicationLogo class="h-9 w-9 fill-current text-primary-foreground" />
+                    <span class="text-lg font-semibold text-primary-foreground">Ringette League</span>
                 </Link>
-                <Button @click="toggleSidebar" variant="ghost" size="icon" class="text-white hover:bg-ringette-blue/80 md:hidden">
+                <Button @click="toggleSidebar" variant="ghost" size="icon" class="text-primary-foreground hover:bg-primary/80 md:hidden">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -110,8 +110,8 @@ const getNavigationItems = computed(() => {
                             :href="route(item.route)"
                             :class="[
                                 route().current(item.route)
-                                    ? 'bg-primary-500 text-white'
-                                    : 'text-gray-600 hover:bg-gray-50 hover:text-primary-700',
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'text-foreground/70 hover:bg-muted hover:text-foreground',
                                 'group flex items-center rounded-md px-2 py-2 text-sm font-medium'
                             ]"
                         >
@@ -119,8 +119,8 @@ const getNavigationItems = computed(() => {
                                 class="mr-3 h-5 w-5 flex-shrink-0"
                                 :class="[
                                     route().current(item.route)
-                                        ? 'text-white'
-                                        : 'text-gray-400 group-hover:text-primary-500'
+                                        ? 'text-primary-foreground'
+                                        : 'text-foreground/50 group-hover:text-foreground'
                                 ]"
                                 fill="none"
                                 stroke="currentColor"
@@ -143,8 +143,8 @@ const getNavigationItems = computed(() => {
                             :href="item.href"
                             :class="[
                                 item.active
-                                    ? 'bg-primary-500 text-white'
-                                    : 'text-gray-600 hover:bg-gray-50 hover:text-primary-700',
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'text-foreground/70 hover:bg-muted hover:text-foreground',
                                 'group flex items-center rounded-md px-2 py-2 text-sm font-medium'
                             ]"
                         >
@@ -152,8 +152,8 @@ const getNavigationItems = computed(() => {
                                 class="mr-3 h-5 w-5 flex-shrink-0"
                                 :class="[
                                     item.active
-                                        ? 'text-white'
-                                        : 'text-gray-400 group-hover:text-primary-500'
+                                        ? 'text-primary-foreground'
+                                        : 'text-foreground/50 group-hover:text-foreground'
                                 ]"
                                 fill="none"
                                 stroke="currentColor"
@@ -174,20 +174,20 @@ const getNavigationItems = computed(() => {
             </nav>
 
             <!-- Profile section -->
-            <div class="absolute bottom-0 flex w-full flex-col border-t border-gray-200 bg-white p-4">
+            <div class="absolute bottom-0 flex w-full flex-col border-t border-border bg-card p-4">
                 <div class="flex items-center">
-                    <Avatar class="h-10 w-10 bg-primary-100 text-primary-600">
+                    <Avatar class="h-10 w-10 bg-primary text-primary-foreground">
                         <AvatarFallback>{{ currentUser.name.charAt(0) }}</AvatarFallback>
                     </Avatar>
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-700">{{ currentUser.name }}</p>
-                        <p class="text-xs font-medium text-gray-500">{{ currentUser.email }}</p>
+                        <p class="text-sm font-medium text-foreground">{{ currentUser.name }}</p>
+                        <p class="text-xs font-medium text-muted-foreground">{{ currentUser.email }}</p>
                     </div>
                 </div>
                 <div class="mt-3 space-y-1">
                     <Link
                         :href="route('profile.edit')"
-                        class="block rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-primary-700"
+                        class="block rounded-md px-3 py-2 text-sm font-medium text-foreground/70 hover:bg-muted hover:text-foreground"
                     >
                         Your Profile
                     </Link>
@@ -195,7 +195,7 @@ const getNavigationItems = computed(() => {
                         :href="route('logout')"
                         method="post"
                         as="button"
-                        class="block w-full rounded-md px-3 py-2 text-left text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-primary-700"
+                        class="block w-full rounded-md px-3 py-2 text-left text-sm font-medium text-foreground/70 hover:bg-muted hover:text-foreground"
                     >
                         Sign out
                     </Link>
@@ -209,22 +209,22 @@ const getNavigationItems = computed(() => {
             :class="{ 'md:pl-64': showingSidebar, 'md:pl-0': !showingSidebar }"
         >
             <!-- Top Navigation (Mobile) -->
-            <div class="sticky top-0 z-10 bg-ringette-blue shadow md:hidden">
+            <div class="sticky top-0 z-10 bg-primary shadow md:hidden">
                 <div class="flex h-16 items-center justify-between px-4">
                     <div class="flex items-center">
                         <Sheet>
                             <SheetTrigger asChild>
-                                <Button variant="ghost" size="icon" class="text-white hover:bg-ringette-blue/80">
+                                <Button variant="ghost" size="icon" class="text-primary-foreground hover:bg-primary/80">
                                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                                     </svg>
                                 </Button>
                             </SheetTrigger>
                             <SheetContent side="left" class="w-64 p-0">
-                                <div class="flex h-16 items-center justify-between border-b border-ringette-blue bg-ringette-blue px-4">
+                                <div class="flex h-16 items-center justify-between border-b border-primary bg-primary px-4">
                                     <Link :href="route('dashboard')" class="flex items-center space-x-2">
-                                        <ApplicationLogo class="h-9 w-9 fill-current text-white" />
-                                        <span class="text-lg font-semibold text-white">Ringette League</span>
+                                        <ApplicationLogo class="h-9 w-9 fill-current text-primary-foreground" />
+                                        <span class="text-lg font-semibold text-primary-foreground">Ringette League</span>
                                     </Link>
                                 </div>
                                 <nav class="mt-4 px-2">
@@ -236,8 +236,8 @@ const getNavigationItems = computed(() => {
                                                 :href="route(item.route)"
                                                 :class="[
                                                     route().current(item.route)
-                                                        ? 'bg-primary-500 text-white'
-                                                        : 'text-gray-600 hover:bg-gray-50 hover:text-primary-700',
+                                                        ? 'bg-primary text-primary-foreground'
+                                                        : 'text-foreground/70 hover:bg-muted hover:text-foreground',
                                                     'group flex items-center rounded-md px-2 py-2 text-sm font-medium'
                                                 ]"
                                             >
@@ -245,8 +245,8 @@ const getNavigationItems = computed(() => {
                                                     class="mr-3 h-5 w-5 flex-shrink-0"
                                                     :class="[
                                                         route().current(item.route)
-                                                            ? 'text-white'
-                                                            : 'text-gray-400 group-hover:text-primary-500'
+                                                            ? 'text-primary-foreground'
+                                                            : 'text-foreground/50 group-hover:text-foreground'
                                                     ]"
                                                     fill="none"
                                                     stroke="currentColor"
@@ -269,8 +269,8 @@ const getNavigationItems = computed(() => {
                                                 :href="item.href"
                                                 :class="[
                                                     item.active
-                                                        ? 'bg-primary-500 text-white'
-                                                        : 'text-gray-600 hover:bg-gray-50 hover:text-primary-700',
+                                                        ? 'bg-primary text-primary-foreground'
+                                                        : 'text-foreground/70 hover:bg-muted hover:text-foreground',
                                                     'group flex items-center rounded-md px-2 py-2 text-sm font-medium'
                                                 ]"
                                             >
@@ -278,8 +278,8 @@ const getNavigationItems = computed(() => {
                                                     class="mr-3 h-5 w-5 flex-shrink-0"
                                                     :class="[
                                                         item.active
-                                                            ? 'text-white'
-                                                            : 'text-gray-400 group-hover:text-primary-500'
+                                                            ? 'text-primary-foreground'
+                                                            : 'text-foreground/50 group-hover:text-foreground'
                                                     ]"
                                                     fill="none"
                                                     stroke="currentColor"
@@ -298,20 +298,20 @@ const getNavigationItems = computed(() => {
                                         </template>
                                     </div>
                                 </nav>
-                                <div class="absolute bottom-0 flex w-full flex-col border-t border-gray-200 bg-white p-4">
+                                <div class="absolute bottom-0 flex w-full flex-col border-t border-border bg-card p-4">
                                     <div class="flex items-center">
-                                        <Avatar class="h-10 w-10 bg-primary-100 text-primary-600">
+                                        <Avatar class="h-10 w-10 bg-primary text-primary-foreground">
                                             <AvatarFallback>{{ currentUser.name.charAt(0) }}</AvatarFallback>
                                         </Avatar>
                                         <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-700">{{ currentUser.name }}</p>
-                                            <p class="text-xs font-medium text-gray-500">{{ currentUser.email }}</p>
+                                            <p class="text-sm font-medium text-foreground">{{ currentUser.name }}</p>
+                                            <p class="text-xs font-medium text-muted-foreground">{{ currentUser.email }}</p>
                                         </div>
                                     </div>
                                     <div class="mt-3 space-y-1">
                                         <Link
                                             :href="route('profile.edit')"
-                                            class="block rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-primary-700"
+                                            class="block rounded-md px-3 py-2 text-sm font-medium text-foreground/70 hover:bg-muted hover:text-foreground"
                                         >
                                             Your Profile
                                         </Link>
@@ -319,7 +319,7 @@ const getNavigationItems = computed(() => {
                                             :href="route('logout')"
                                             method="post"
                                             as="button"
-                                            class="block w-full rounded-md px-3 py-2 text-left text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-primary-700"
+                                            class="block w-full rounded-md px-3 py-2 text-left text-sm font-medium text-foreground/70 hover:bg-muted hover:text-foreground"
                                         >
                                             Sign out
                                         </Link>
@@ -328,14 +328,14 @@ const getNavigationItems = computed(() => {
                             </SheetContent>
                         </Sheet>
                         <Link :href="route('dashboard')" class="ml-2">
-                            <ApplicationLogo class="h-8 w-8 fill-current text-white" />
+                            <ApplicationLogo class="h-8 w-8 fill-current text-primary-foreground" />
                         </Link>
                     </div>
                     <!-- Mobile User Dropdown -->
                     <div class="relative">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" class="flex items-center text-sm font-medium text-white">
+                                <Button variant="ghost" class="flex items-center text-sm font-medium text-primary-foreground">
                                     <span>{{ currentUser.name }}</span>
                                     <svg class="ml-1 h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -356,14 +356,14 @@ const getNavigationItems = computed(() => {
             </div>
 
             <!-- Page Header -->
-            <header class="bg-white shadow" v-if="$slots.header">
+            <header class="bg-card shadow" v-if="$slots.header">
                 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                     <slot name="header" />
                 </div>
             </header>
 
             <!-- Page Content -->
-            <main class="flex-1 bg-gray-50">
+            <main class="flex-1 bg-background">
                 <div class="py-6">
                     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <slot />

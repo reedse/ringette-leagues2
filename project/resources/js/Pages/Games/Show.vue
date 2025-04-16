@@ -4,13 +4,13 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { format } from 'date-fns';
 
 // Import shadcn-vue components
-import { Button } from "@/Components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
-import { Badge } from "@/Components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
-import { Separator } from "@/Components/ui/separator";
-import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ExternalLink } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -27,11 +27,15 @@ const formatDate = (dateTime) => {
 const getStatusVariant = (status) => {
     switch (status) {
         case 'Scheduled':
-            return 'secondary';
+            return 'badge-scheduled';
         case 'In Progress':
-            return 'warning';
+            return 'badge-in-progress';
         case 'Completed':
-            return 'success';
+            return 'badge-completed';
+        case 'Cancelled':
+            return 'badge-cancelled';
+        case 'Draft':
+            return 'badge-draft';
         default:
             return 'outline';
     }

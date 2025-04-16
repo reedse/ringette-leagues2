@@ -124,11 +124,15 @@ const formatDate = (dateTime) => {
 const getStatusVariant = (status) => {
     switch (status) {
         case STATUS_SCHEDULED:
-            return 'secondary';
+            return 'badge-scheduled';
         case STATUS_IN_PROGRESS:
-            return 'warning';
+            return 'badge-in-progress';
         case STATUS_COMPLETED:
-            return 'success';
+            return 'badge-completed';
+        case 'cancelled':
+            return 'badge-cancelled';
+        case 'draft':
+            return 'badge-draft';
         default:
             return 'outline';
     }
