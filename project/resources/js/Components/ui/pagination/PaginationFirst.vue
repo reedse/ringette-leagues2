@@ -1,6 +1,6 @@
 <script setup>
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/Components/ui/button';
 import { ChevronsLeft } from 'lucide-vue-next';
 import { PaginationFirst } from 'reka-ui';
 import { computed } from 'vue';

@@ -1,74 +1,99 @@
-import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
+import animate from 'tailwindcss-animate';
 
 /** @type {import('tailwindcss').Config} */
 export default {
+    darkMode: ['class'],
+    safelist: ['dark'],
+    prefix: '',
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
-        './resources/js/**/*.vue',
+        './resources/js/**/*.{ts,tsx,vue}',
+        './app/View/Components/**/*.{ts,tsx,vue}',
+        './components/**/*.{ts,tsx,vue}',
     ],
 
     theme: {
-        extend: {
-            fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+        container: {
+            center: true,
+            padding: '2rem',
+            screens: {
+              '2xl': '1400px',
             },
+        },
+        extend: {
             colors: {
+                border: 'hsl(var(--border))',
+                input: 'hsl(var(--input))',
+                ring: 'hsl(var(--ring))',
+                background: 'hsl(var(--background))',
+                foreground: 'hsl(var(--foreground))',
                 primary: {
-                    50: '#f0f9ff',
-                    100: '#e0f2fe',
-                    200: '#bae6fd',
-                    300: '#7dd3fc',
-                    400: '#38bdf8',
-                    500: '#0ea5e9',
-                    600: '#0284c7',
-                    700: '#0369a1',
-                    800: '#075985',
-                    900: '#0c4a6e',
-                    950: '#082f49',
+                    DEFAULT: 'hsl(var(--primary))',
+                    foreground: 'hsl(var(--primary-foreground))',
                 },
                 secondary: {
-                    50: '#f5f3ff',
-                    100: '#ede9fe',
-                    200: '#ddd6fe',
-                    300: '#c4b5fd',
-                    400: '#a78bfa',
-                    500: '#8b5cf6',
-                    600: '#7c3aed',
-                    700: '#6d28d9',
-                    800: '#5b21b6',
-                    900: '#4c1d95',
-                    950: '#2e1065',
+                    DEFAULT: 'hsl(var(--secondary))',
+                    foreground: 'hsl(var(--secondary-foreground))',
                 },
-                // Ringette themed colors
+                destructive: {
+                    DEFAULT: 'hsl(var(--destructive))',
+                    foreground: 'hsl(var(--destructive-foreground))',
+                },
+                muted: {
+                    DEFAULT: 'hsl(var(--muted))',
+                    foreground: 'hsl(var(--muted-foreground))',
+                },
+                accent: {
+                    DEFAULT: 'hsl(var(--accent))',
+                    foreground: 'hsl(var(--accent-foreground))',
+                },
+                popover: {
+                    DEFAULT: 'hsl(var(--popover))',
+                    foreground: 'hsl(var(--popover-foreground))',
+                },
+                card: {
+                    DEFAULT: 'hsl(var(--card))',
+                    foreground: 'hsl(var(--card-foreground))',
+                },
                 ringette: {
-                    blue: '#0053A0',  // Main ringette color
-                    red: '#ED1C24',   // Secondary ringette color
+                    blue: '#0053A0',
+                    red: '#ED1C24',
                 }
             },
             borderRadius: {
-                'sm': '0.125rem',
-                'DEFAULT': '0.25rem',
-                'md': '0.375rem',
-                'lg': '0.5rem',
-                'xl': '0.75rem',
-                '2xl': '1rem',
-                '3xl': '1.5rem',
+                lg: 'var(--radius)',
+                md: 'calc(var(--radius) - 2px)',
+                sm: 'calc(var(--radius) - 4px)',
             },
-            boxShadow: {
-                'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-                'DEFAULT': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-                'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                'inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
-                'none': 'none',
-            }
+            keyframes: {
+                'accordion-down': {
+                  from: { height: 0 },
+                  to: { height: 'var(--radix-accordion-content-height)' },
+                },
+                'accordion-up': {
+                  from: { height: 'var(--radix-accordion-content-height)' },
+                  to: { height: 0 },
+                },
+                'collapsible-down': {
+                  from: { height: 0 },
+                  to: { height: 'var(--radix-collapsible-content-height)' },
+                },
+                'collapsible-up': {
+                  from: { height: 'var(--radix-collapsible-content-height)' },
+                  to: { height: 0 },
+                },
+            },
+            animation: {
+                'accordion-down': 'accordion-down 0.2s ease-out',
+                'accordion-up': 'accordion-up 0.2s ease-out',
+                'collapsible-down': 'collapsible-down 0.2s ease-out',
+                'collapsible-up': 'collapsible-up 0.2s ease-out',
+            },
         },
     },
 
-    plugins: [forms],
+    plugins: [forms, animate],
 };

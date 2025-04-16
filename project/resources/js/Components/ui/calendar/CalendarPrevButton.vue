@@ -1,6 +1,6 @@
 <script setup>
 import { cn } from '@/lib/utils';
-import { buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/Components/ui/button';
 import { ChevronLeft } from 'lucide-vue-next';
 import { CalendarPrev, useForwardProps } from 'reka-ui';
 import { computed } from 'vue';
