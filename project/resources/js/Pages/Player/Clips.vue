@@ -48,55 +48,51 @@ const closePlayer = () => {
                     </AlertDescription>
                 </Alert>
 
-                <!-- Subscription required message -->
-                <div v-if="!hasSubscription" class="bg-white shadow sm:rounded-lg overflow-hidden">
-                    <div class="p-6">
-                        <h3 class="text-lg font-medium mb-4">Video Clips Access</h3>
-                        <div class="mb-6 rounded-md bg-primary-50 p-4">
-                            <h4 class="font-medium text-primary-800">Upgrade Required</h4>
-                            <p class="mt-1 text-primary-600">
-                                To access video clips shared by your coaches, you need to upgrade your account.
-                            </p>
-                            <Link :href="route('subscription.show')">
-                                <Button class="mt-3">Upgrade Account</Button>
-                            </Link>
+                <!-- Subscription prompt -->
+                <div v-if="!hasSubscription" class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-8 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        <h3 class="mt-4 text-xl font-bold text-gray-900">Get Access to Video Clips</h3>
+                        <p class="mt-2 text-gray-600">
+                            Unlock access to video clips shared by your coaches. See your performance, receive feedback, and improve your game.
+                        </p>
+                        <div class="mt-8">
+                            <Button asChild size="lg">
+                                <Link :href="route('subscription.show')" class="px-8">Subscribe Now</Link>
+                            </Button>
+                            <p class="mt-2 text-sm text-gray-500">Includes a 7-day free trial. Cancel anytime.</p>
                         </div>
-                        
-                        <h4 class="font-medium mt-6 mb-2">Benefits of upgrading:</h4>
-                        <ul class="list-disc pl-5 space-y-2 text-gray-600">
-                            <li>Access to all video clips shared by your coaches</li>
-                            <li>Review game highlights and key moments</li>
-                            <li>See coaching tips and feedback</li>
-                            <li>Analyze your performance to improve your skills</li>
-                            <li>Reference clips from previous games</li>
-                        </ul>
-                        
-                        <div class="mt-6 border-t pt-6">
-                            <h4 class="font-medium mb-2">Subscription Plans:</h4>
-                            <div class="grid gap-4 md:grid-cols-2">
-                                <div class="border rounded-md p-4">
-                                    <div class="font-medium">Monthly Plan</div>
-                                    <div class="text-2xl font-bold mt-1">$4.99<span class="text-sm font-normal text-gray-500">/month</span></div>
-                                    <ul class="mt-3 text-sm space-y-1">
-                                        <li>Full access to all clips</li>
-                                        <li>7-day free trial</li>
-                                        <li>Cancel anytime</li>
-                                    </ul>
+                        <div class="mt-8 border-t border-gray-200 pt-6">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                <div class="text-center">
+                                    <div class="flex justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <h4 class="mt-2 font-medium text-gray-900">Personalized Feedback</h4>
+                                    <p class="mt-1 text-sm text-gray-500">Get detailed feedback from your coaches</p>
                                 </div>
-                                <div class="border rounded-md p-4 bg-primary-50">
-                                    <div class="font-medium">Annual Plan <Badge class="ml-1">Best Value</Badge></div>
-                                    <div class="text-2xl font-bold mt-1">$49.99<span class="text-sm font-normal text-gray-500">/year</span></div>
-                                    <ul class="mt-3 text-sm space-y-1">
-                                        <li>Full access to all clips</li>
-                                        <li>7-day free trial</li>
-                                        <li>Save over 15% compared to monthly</li>
-                                    </ul>
+                                <div class="text-center">
+                                    <div class="flex justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <h4 class="mt-2 font-medium text-gray-900">Game Highlights</h4>
+                                    <p class="mt-1 text-sm text-gray-500">Watch your best moments from games</p>
                                 </div>
-                            </div>
-                            <div class="mt-4 text-center">
-                                <Link :href="route('subscription.show')">
-                                    <Button size="lg">View Subscription Options</Button>
-                                </Link>
+                                <div class="text-center">
+                                    <div class="flex justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                    </div>
+                                    <h4 class="mt-2 font-medium text-gray-900">Skill Improvement</h4>
+                                    <p class="mt-1 text-sm text-gray-500">Analyze and improve your performance</p>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -74,17 +74,17 @@
 
 ## 8. Real-time Notifications
 
-- [ ] Set up Laravel Broadcasting
-- [ ] Configure Reverb WebSocket server
-- [ ] Implement Laravel Echo on frontend
-- [ ] Create notification system for clip sharing
+- [✓] Set up Laravel Broadcasting
+- [✓] Configure Reverb WebSocket server
+- [✓] Implement Laravel Echo on frontend
+- [✓] Create notification system for clip sharing
 
 ## 9. Payment Integration
 
-- [ ] Configure Stripe with Laravel Cashier
-- [ ] Set up products and prices in Stripe
-- [ ] Implement subscription management
-- [ ] Configure webhooks for payment events
+- [✓] Configure Stripe with Laravel Cashier
+- [✓] Set up products and prices in Stripe
+- [✓] Implement subscription management
+- [✓] Configure webhooks for payment events
 
 ## 10. Testing
 

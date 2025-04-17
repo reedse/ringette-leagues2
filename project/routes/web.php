@@ -114,3 +114,8 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Stripe webhook route
+Route::post('/webhook/stripe', [App\Http\Controllers\WebhookController::class, 'handleWebhook'])
+    ->name('cashier.webhook')
+    ->middleware('throttle:60,1'); // Add rate limiting to webhook route

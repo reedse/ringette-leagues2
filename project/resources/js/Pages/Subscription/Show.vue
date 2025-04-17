@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
@@ -27,7 +27,7 @@ const selectPlan = (planId) => {
 };
 
 const subscribe = () => {
-    form.post(route('subscription.checkout'));
+    router.visit(route('subscription.checkout') + '?plan=' + selectedPlan.value);
 };
 
 const cancelSubscription = () => {

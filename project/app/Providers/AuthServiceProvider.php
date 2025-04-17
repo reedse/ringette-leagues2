@@ -8,6 +8,7 @@ use App\Models\League;
 use App\Models\Player;
 use App\Models\Team;
 use App\Models\User;
+use App\Policies\ClipPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -19,7 +20,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        Clip::class => ClipPolicy::class,
     ];
 
     /**
@@ -95,6 +96,25 @@ class AuthServiceProvider extends ServiceProvider
             return $user->isLeagueAdmin() || 
                    ($user->player && $user->player->id === $player->id) ||
                    ($user->isCoach() && $player->teams()->where('team_id', $user->managed_team_id)->exists());
+        });
+
+        // Define role-based permissions
+        Gate::define('access-player-features', function ($user) {
+            return $user->hasRole('player');
+        });
+
+        Gate::define('access-coach-features', function ($user) {
+            return $user->hasRole('coach');
+        });
+
+        Gate::define('access-admin-features', function ($user) {
+            return $user->hasRole('league_admin');
+        });
+
+        // Define subscription-based permissions
+        Gate::define('view-clips', function ($user) {
+            return $user->hasRole('coach') || 
+                  ($user->hasRole('player') && $user->subscribed('clips'));
         });
     }
 } 

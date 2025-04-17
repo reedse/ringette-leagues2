@@ -2,19 +2,21 @@
 import { ref, computed } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/Components/ui/button';
+import { Avatar, AvatarFallback } from '@/Components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/Components/ui/dropdown-menu';
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
-} from '@/components/ui/sheet';
+} from '@/Components/ui/sheet';
+import { Toaster } from '@/Components/ui/toast';
+import NotificationListener from '@/Components/NotificationListener.vue';
 
 const showingNavigationDropdown = ref(false);
 const showingSidebar = ref(true);
@@ -82,6 +84,10 @@ const getNavigationItems = computed(() => {
 
 <template>
     <div class="min-h-screen bg-background">
+        <!-- Notification components -->
+        <Toaster />
+        <NotificationListener :userId="currentUser.id" />
+        
         <!-- Sidebar - Hidden on mobile, visible on desktop -->
         <div
             class="fixed inset-y-0 left-0 z-10 hidden w-64 transform bg-card shadow-lg transition-all duration-300 md:block"

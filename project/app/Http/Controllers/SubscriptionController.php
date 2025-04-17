@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Laravel\Cashier\Exceptions\IncompletePayment;
 use Inertia\Inertia;
 
@@ -24,7 +25,7 @@ class SubscriptionController extends Controller
             'onTrial' => $onTrial,
             'plans' => [
                 [
-                    'id' => 'price_clips_monthly',
+                    'id' => env('MONTHLY_PRICE_ID', 'price_clips_monthly'),
                     'name' => 'Monthly Subscription',
                     'price' => '$4.99',
                     'interval' => 'monthly',
@@ -35,7 +36,7 @@ class SubscriptionController extends Controller
                     ],
                 ],
                 [
-                    'id' => 'price_clips_yearly',
+                    'id' => env('YEARLY_PRICE_ID', 'price_clips_yearly'),
                     'name' => 'Annual Subscription',
                     'price' => '$49.99',
                     'interval' => 'yearly',
@@ -64,19 +65,87 @@ class SubscriptionController extends Controller
         $paymentMethod = $request->input('payment_method');
         $planId = $request->input('plan');
         
+        // Log incoming request data (excluding sensitive information)
+        Log::info('Subscription creation attempt', [
+            'user_id' => $user->id,
+            'plan' => $planId,
+            'payment_method_provided' => !empty($paymentMethod)
+        ]);
+        
+        // Validate required inputs
+        if (empty($paymentMethod)) {
+            Log::error('Missing payment method');
+            return redirect()->back()->withErrors(['message' => 'Payment method is required']);
+        }
+        
+        if (empty($planId)) {
+            Log::error('Missing plan ID');
+            return redirect()->back()->withErrors(['message' => 'Subscription plan is required']);
+        }
+        
         try {
-            $user->newSubscription('clips', $planId)
+            // Ensure user has a Stripe customer
+            if (!$user->stripe_id) {
+                try {
+                    Log::info('Creating Stripe customer for user', ['user_id' => $user->id]);
+                    $user->createAsStripeCustomer();
+                } catch (\Exception $e) {
+                    Log::error('Failed to create Stripe customer', [
+                        'error' => $e->getMessage(),
+                        'user_id' => $user->id
+                    ]);
+                    return redirect()->back()->withErrors(['message' => 'Error creating customer account: ' . $e->getMessage()]);
+                }
+            }
+            
+            // Check if payment method exists first
+            try {
+                // Make sure the user is linked to their payment method
+                $user->updateDefaultPaymentMethod($paymentMethod);
+            } catch (\Exception $e) {
+                Log::error('Payment method update failed', [
+                    'error' => $e->getMessage(),
+                    'payment_method' => substr($paymentMethod, 0, 5) . '...'
+                ]);
+                return redirect()->back()->withErrors(['message' => 'Invalid payment method: ' . $e->getMessage()]);
+            }
+            
+            // Create the subscription with a trial period
+            $subscription = $user->newSubscription('clips', $planId)
                 ->trialDays(7) // 7-day free trial
                 ->create($paymentMethod);
+            
+            Log::info('Subscription created successfully', [
+                'user_id' => $user->id,
+                'plan' => $planId,
+                'subscription_id' => $subscription->stripe_id
+            ]);
                 
             return redirect()->route('player.clips')->with('success', 'Subscription created successfully!');
         } catch (IncompletePayment $exception) {
+            Log::warning('Incomplete payment exception', [
+                'exception' => $exception->getMessage(),
+                'payment_id' => $exception->payment->id
+            ]);
+            
             return redirect()->route('cashier.payment', [
                 $exception->payment->id, 
                 'redirect' => route('player.clips')
             ]);
+        } catch (\Laravel\Cashier\Exceptions\InvalidStripeCustomer $e) {
+            Log::error('Invalid Stripe customer', [
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->back()->withErrors(['message' => 'Stripe account setup failed. Please try again.']);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['message' => $e->getMessage()]);
+            Log::error('Subscription creation failed', [
+                'error' => $e->getMessage(),
+                'class' => get_class($e),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()->withErrors(['message' => 'Subscription error: ' . $e->getMessage()]);
         }
     }
     

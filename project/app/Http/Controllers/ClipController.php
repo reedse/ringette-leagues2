@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ClipShared;
 use App\Models\Clip;
 use App\Models\ClipPlayer;
 use App\Models\Game;
 use App\Models\Player;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -150,14 +152,24 @@ class ClipController extends Controller
         $clip->end_time = $validated['end_time'];
         $clip->save();
 
-        // Associate players with the clip
+        // Associate players with the clip and broadcast the ClipShared event
         foreach ($validated['players'] as $playerData) {
+            $playerId = $playerData['id'];
+            
             ClipPlayer::create([
                 'clip_id' => $clip->id,
-                'player_id' => $playerData['id'],
+                'player_id' => $playerId,
                 'coach_note' => $playerData['note'] ?? null,
                 'sent_at' => now(),
             ]);
+            
+            // Get the player model for broadcasting
+            $player = Player::with('user')->find($playerId);
+            
+            // Only broadcast if player has a user account
+            if ($player && $player->user) {
+                event(new ClipShared($clip, $user, $player->user));
+            }
         }
 
         return redirect()->route('coach.clips')
@@ -252,18 +264,34 @@ class ClipController extends Controller
         $clip->end_time = $validated['end_time'];
         $clip->save();
 
+        // Get the current players associated with the clip
+        $existingPlayerIds = $clip->sharedWithPlayers()->pluck('players.id')->toArray();
+        
         // Update player associations
         // First, remove all existing associations
         ClipPlayer::where('clip_id', $clip->id)->delete();
         
         // Then recreate the associations
         foreach ($validated['players'] as $playerData) {
+            $playerId = $playerData['id'];
+            
             ClipPlayer::create([
                 'clip_id' => $clip->id,
-                'player_id' => $playerData['id'],
+                'player_id' => $playerId,
                 'coach_note' => $playerData['note'] ?? null,
                 'sent_at' => now(),
             ]);
+            
+            // Only broadcast to newly added players
+            if (!in_array($playerId, $existingPlayerIds)) {
+                // Get the player model for broadcasting
+                $player = Player::with('user')->find($playerId);
+                
+                // Only broadcast if player has a user account
+                if ($player && $player->user) {
+                    event(new ClipShared($clip, $user, $player->user));
+                }
+            }
         }
 
         return redirect()->route('coach.clips.show', $clip)

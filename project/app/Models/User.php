@@ -10,11 +10,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Laravel\Cashier\Billable;
+use Laravel\Cashier\SubscriptionBuilder;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Billable;
 
     /**
      * The attributes that are mass assignable.
@@ -28,6 +30,10 @@ class User extends Authenticatable
         'managed_team_id',
         'provider',
         'provider_id',
+        'stripe_id',
+        'pm_type',
+        'pm_last_four',
+        'trial_ends_at',
     ];
 
     /**
@@ -83,6 +89,19 @@ class User extends Authenticatable
     public function createdClips(): HasMany
     {
         return $this->hasMany(Clip::class, 'coach_user_id');
+    }
+
+    /**
+     * Begin creating a new subscription.
+     * Override to use our custom Subscription model
+     *
+     * @param  string  $name
+     * @param  string  $price
+     * @return \Laravel\Cashier\SubscriptionBuilder
+     */
+    public function newSubscription($name, $price)
+    {
+        return new SubscriptionBuilder($this, $name, $price);
     }
 
     /**

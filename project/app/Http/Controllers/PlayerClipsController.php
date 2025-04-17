@@ -23,7 +23,7 @@ class PlayerClipsController extends Controller
         }
         
         // Check if player has an active subscription
-        $hasSubscription = false; // In a real app, check Cashier/Stripe subscription status
+        $hasSubscription = $user->subscribed('clips');
         
         // If player doesn't have subscription, don't query clips
         if (!$hasSubscription) {
