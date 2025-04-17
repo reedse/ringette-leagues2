@@ -104,6 +104,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/seasons', function () {
             return Inertia::render('Admin/Seasons');
         })->name('admin.seasons');
+        
+        // Team management routes
+        Route::get('/teams', [App\Http\Controllers\AdminTeamController::class, 'index'])->name('admin.teams');
+        Route::get('/teams/{team}/assign-coach', [App\Http\Controllers\AdminTeamController::class, 'assignCoachForm'])->name('admin.teams.assign-coach');
+        Route::post('/teams/{team}/assign-coach', [App\Http\Controllers\AdminTeamController::class, 'assignCoach']);
+        Route::post('/teams/{team}/create-coach', [App\Http\Controllers\AdminTeamController::class, 'createCoach'])->name('admin.teams.create-coach');
+        Route::post('/teams/remove-coach', [App\Http\Controllers\AdminTeamController::class, 'removeCoach'])->name('admin.teams.remove-coach');
     });
 });
 

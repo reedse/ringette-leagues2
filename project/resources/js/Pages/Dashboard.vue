@@ -59,6 +59,11 @@ const props = defineProps({
                             <CardContent class="pt-4">
                                 <p class="text-2xl font-bold">{{ dashboardData.teams_count }}</p>
                             </CardContent>
+                            <CardFooter>
+                                <Button variant="outline" asChild>
+                                    <a :href="route('admin.teams')">Manage Teams</a>
+                                </Button>
+                            </CardFooter>
                         </Card>
                         
                         <Card>
