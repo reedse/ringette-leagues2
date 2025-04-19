@@ -92,7 +92,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // League admin routes
-    Route::prefix('admin')->middleware(['auth', 'verified', CheckRole::class.':league_admin'])->group(function () {
+    Route::prefix('admin')->middleware(['auth', 'verified', CheckRole::class.':admin'])->group(function () {
         Route::get('/associations', function () {
             return Inertia::render('Admin/Associations');
         })->name('admin.associations');

@@ -164,6 +164,6 @@ class User extends Authenticatable
      */
     public function isLeagueAdmin(): bool
     {
-        return $this->hasRole('league_admin');
+        return $this->hasRole('admin');
     }
 }
