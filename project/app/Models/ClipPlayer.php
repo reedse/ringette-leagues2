@@ -22,6 +22,18 @@ class ClipPlayer extends Pivot
     protected $table = 'clip_player';
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'clip_id',
+        'player_id',
+        'coach_note',
+        'sent_at'
+    ];
+
+    /**
      * The attributes that should be cast.
      *
      * @var array

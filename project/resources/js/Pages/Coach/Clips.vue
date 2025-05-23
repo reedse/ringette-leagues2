@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -39,6 +39,12 @@ const formatDate = (dateString) => {
         month: 'short',
         day: 'numeric'
     });
+};
+
+// Helper functions for data consistency
+const getTeamName = (team) => {
+    if (!team) return 'Unknown Team';
+    return team.name || team.team_name || `Team #${team.id}`;
 };
 </script>
 
@@ -109,7 +115,8 @@ const formatDate = (dateString) => {
                                     <div class="ml-5 w-0 flex-1">
                                         <h3 class="truncate text-lg font-medium text-gray-900">{{ clip.title }}</h3>
                                         <p class="mt-1 text-sm text-gray-500">
-                                            {{ clip.game.homeTeam.name }} vs {{ clip.game.awayTeam.name }}
+                                            {{ clip.game && clip.game.homeTeam ? getTeamName(clip.game.homeTeam) : 'Unknown Home Team' }} vs 
+                                            {{ clip.game && clip.game.awayTeam ? getTeamName(clip.game.awayTeam) : 'Unknown Away Team' }}
                                         </p>
                                     </div>
                                 </div>
@@ -126,7 +133,14 @@ const formatDate = (dateString) => {
                                         </div>
                                         <div>
                                             <span class="block font-medium text-gray-500">Players</span>
-                                            <span class="block mt-1 text-gray-900">{{ clip.players.length }}</span>
+                                            <span class="block mt-1 text-gray-900" v-if="!clip.players || clip.players.length === 0">
+                                                No players
+                                            </span>
+                                            <div class="mt-1 text-gray-900" v-else>
+                                                <span v-for="(player, index) in clip.players" :key="player.id" class="inline-block">
+                                                    {{ player.name || player.first_name || `Player #${player.id}` }}{{ index < clip.players.length - 1 ? ', ' : '' }}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
