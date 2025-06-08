@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\Filters;
 use App\Models\Team;
 use App\Models\League;
 use App\Models\Season;
@@ -19,13 +20,13 @@ class TeamController extends Controller
         // Log the start of the method for debugging
         Log::info('TeamController@index started', ['request' => $request->all()]);
 
-        // Get filter parameters from the request
-        $leagueId = $request->input('league');
-        $seasonId = $request->input('season');
+        // Get filter parameters from the request using constants
+        $leagueName = $request->input(Filters::LEAGUE);
+        $seasonName = $request->input(Filters::SEASON);
         
-        // Query leagues and seasons for filters
-        $leagues = League::orderBy('name')->get();
-        $seasons = Season::orderBy('start_date', 'desc')->get();
+        // Query leagues and seasons for filters - ensure uniqueness
+        $leagues = League::select('id', 'name')->distinct()->orderBy('name')->get();
+        $seasons = Season::select('id', 'name', 'start_date')->distinct()->orderBy('start_date', 'desc')->get();
         
         // Log filter entities
         Log::info('Filter entities loaded', [
@@ -37,12 +38,16 @@ class TeamController extends Controller
         $teamsQuery = Team::with(['league', 'season', 'association']);
         
         // Apply filters if provided
-        if ($leagueId) {
-            $teamsQuery->where('league_id', $leagueId);
+        if ($leagueName) {
+            $teamsQuery->whereHas('league', function($query) use ($leagueName) {
+                $query->where('name', $leagueName);
+            });
         }
         
-        if ($seasonId) {
-            $teamsQuery->where('season_id', $seasonId);
+        if ($seasonName) {
+            $teamsQuery->whereHas('season', function($query) use ($seasonName) {
+                $query->where('name', $seasonName);
+            });
         }
         
         // Get teams sorted by league and name
@@ -63,8 +68,8 @@ class TeamController extends Controller
             'leagues' => $leagues,
             'seasons' => $seasons,
             'filters' => [
-                'league' => $leagueId,
-                'season' => $seasonId,
+                Filters::LEAGUE => $leagueName,
+                Filters::SEASON => $seasonName,
             ],
         ];
         

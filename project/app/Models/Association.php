@@ -20,6 +20,14 @@ class Association extends Model
     ];
 
     /**
+     * Get the leagues belonging to this association.
+     */
+    public function leagues(): HasMany
+    {
+        return $this->hasMany(League::class);
+    }
+
+    /**
      * Get the teams belonging to this association.
      */
     public function teams(): HasMany

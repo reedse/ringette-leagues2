@@ -29,10 +29,29 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $userRole = null;
+
+        // Determine user role for consistent sidebar navigation
+        if ($user) {
+            if ($user->isLeagueAdmin()) {
+                $userRole = 'league_admin';
+            } elseif ($user->isCoach()) {
+                $userRole = 'coach';
+            } elseif ($user->isPlayer()) {
+                $userRole = 'player';
+            }
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+            ],
+            'userRole' => $userRole,
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
             ],
         ];
     }

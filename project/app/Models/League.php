@@ -38,6 +38,14 @@ class League extends Model
     }
 
     /**
+     * Get the seasons belonging to this league.
+     */
+    public function seasons(): HasMany
+    {
+        return $this->hasMany(Season::class);
+    }
+
+    /**
      * Get the games scheduled in this league.
      */
     public function games(): HasMany

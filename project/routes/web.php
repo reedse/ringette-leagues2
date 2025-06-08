@@ -93,17 +93,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // League admin routes
     Route::prefix('admin')->middleware(['auth', 'verified', CheckRole::class.':admin'])->group(function () {
-        Route::get('/associations', function () {
-            return Inertia::render('Admin/Associations');
-        })->name('admin.associations');
+        // Association management routes
+        Route::get('/associations', [App\Http\Controllers\AdminAssociationController::class, 'index'])->name('admin.associations');
+        Route::get('/associations/create', [App\Http\Controllers\AdminAssociationController::class, 'create'])->name('admin.associations.create');
+        Route::post('/associations', [App\Http\Controllers\AdminAssociationController::class, 'store'])->name('admin.associations.store');
+        Route::get('/associations/{association}/edit', [App\Http\Controllers\AdminAssociationController::class, 'edit'])->name('admin.associations.edit');
+        Route::put('/associations/{association}', [App\Http\Controllers\AdminAssociationController::class, 'update'])->name('admin.associations.update');
+        Route::delete('/associations/{association}', [App\Http\Controllers\AdminAssociationController::class, 'destroy'])->name('admin.associations.destroy');
         
-        Route::get('/leagues', function () {
-            return Inertia::render('Admin/Leagues');
-        })->name('admin.leagues');
+        // League management routes
+        Route::get('/leagues', [App\Http\Controllers\AdminLeagueController::class, 'index'])->name('admin.leagues');
+        Route::get('/leagues/create', [App\Http\Controllers\AdminLeagueController::class, 'create'])->name('admin.leagues.create');
+        Route::post('/leagues', [App\Http\Controllers\AdminLeagueController::class, 'store'])->name('admin.leagues.store');
+        Route::get('/leagues/{league}/edit', [App\Http\Controllers\AdminLeagueController::class, 'edit'])->name('admin.leagues.edit');
+        Route::put('/leagues/{league}', [App\Http\Controllers\AdminLeagueController::class, 'update'])->name('admin.leagues.update');
+        Route::delete('/leagues/{league}', [App\Http\Controllers\AdminLeagueController::class, 'destroy'])->name('admin.leagues.destroy');
         
-        Route::get('/seasons', function () {
-            return Inertia::render('Admin/Seasons');
-        })->name('admin.seasons');
+        // Season management routes
+        Route::get('/seasons', [App\Http\Controllers\AdminSeasonController::class, 'index'])->name('admin.seasons');
+        Route::get('/seasons/create', [App\Http\Controllers\AdminSeasonController::class, 'create'])->name('admin.seasons.create');
+        Route::post('/seasons', [App\Http\Controllers\AdminSeasonController::class, 'store'])->name('admin.seasons.store');
+        Route::get('/seasons/{season}/edit', [App\Http\Controllers\AdminSeasonController::class, 'edit'])->name('admin.seasons.edit');
+        Route::put('/seasons/{season}', [App\Http\Controllers\AdminSeasonController::class, 'update'])->name('admin.seasons.update');
+        Route::delete('/seasons/{season}', [App\Http\Controllers\AdminSeasonController::class, 'destroy'])->name('admin.seasons.destroy');
         
         // Team management routes
         Route::get('/teams', [App\Http\Controllers\AdminTeamController::class, 'index'])->name('admin.teams');

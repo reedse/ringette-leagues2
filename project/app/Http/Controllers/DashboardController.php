@@ -13,23 +13,18 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $role = null;
         $dashboardData = [];
 
-        // Determine primary role for dashboard display
+        // Determine primary role for dashboard display (userRole is now shared globally)
         if ($user->isLeagueAdmin()) {
-            $role = 'league_admin';
             $dashboardData = $this->getLeagueAdminData($user);
         } elseif ($user->isCoach()) {
-            $role = 'coach';
             $dashboardData = $this->getCoachData($user);
         } elseif ($user->isPlayer()) {
-            $role = 'player';
             $dashboardData = $this->getPlayerData($user);
         }
 
         return Inertia::render('Dashboard', [
-            'userRole' => $role,
             'dashboardData' => $dashboardData,
         ]);
     }

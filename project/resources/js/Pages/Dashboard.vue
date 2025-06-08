@@ -1,19 +1,20 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/Components/ui/card';
 
 const props = defineProps({
-    userRole: {
-        type: String,
-        required: true
-    },
     dashboardData: {
         type: Object,
         required: true
     }
 });
+
+// Get userRole from globally shared Inertia props
+const page = usePage();
+const userRole = computed(() => page.props.userRole);
 </script>
 
 <template>

@@ -17,7 +17,8 @@ class SeasonFactory extends Factory
      */
     public function definition(): array
     {
-        $startYear = fake()->numberBetween(2023, 2025);
+        //$startYear = fake()->numberBetween(2023, 2025);
+        $startYear = 2025;
         $endYear = $startYear + 1;
         return [
             'league_id' => League::factory(),

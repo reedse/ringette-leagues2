@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Modal from '@/Components/Modal.vue';
@@ -10,11 +10,14 @@ import DangerButton from '@/Components/DangerButton.vue';
 const props = defineProps({
     team: Object,
     clips: Array,
-    error: String,
 });
+
+const page = usePage();
+const flashMessages = computed(() => page.props.flash || {});
 
 const showDeleteModal = ref(false);
 const clipToDelete = ref(null);
+const isDeleting = ref(false);
 
 const confirmDelete = (clip) => {
     clipToDelete.value = clip;
@@ -22,8 +25,26 @@ const confirmDelete = (clip) => {
 };
 
 const deleteClip = () => {
-    // Use Inertia.delete to delete the clip
-    window.location.href = route('coach.clips.destroy', clipToDelete.value.id);
+    if (!clipToDelete.value || isDeleting.value) return;
+    
+    isDeleting.value = true;
+    
+    router.delete(route('coach.clips.destroy', clipToDelete.value.id), {
+        onSuccess: () => {
+            showDeleteModal.value = false;
+            clipToDelete.value = null;
+            isDeleting.value = false;
+        },
+        onError: (errors) => {
+            console.error('Error deleting clip:', errors);
+            isDeleting.value = false;
+            // The error will be shown via flash messages from the backend
+            // Keep the modal open so user can see the error and try again
+        },
+        onFinish: () => {
+            isDeleting.value = false;
+        }
+    });
 };
 
 const formatDuration = (start, end) => {
@@ -69,7 +90,22 @@ const getTeamName = (team) => {
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div v-if="error" class="mb-4 rounded-md bg-red-50 p-4">
+                <!-- Success Message -->
+                <div v-if="flashMessages.success" class="mb-4 rounded-md bg-green-50 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-green-800">{{ flashMessages.success }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Error Message -->
+                <div v-if="flashMessages.error" class="mb-4 rounded-md bg-red-50 p-4">
                     <div class="flex">
                         <div class="flex-shrink-0">
                             <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
@@ -77,7 +113,7 @@ const getTeamName = (team) => {
                             </svg>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm font-medium text-red-800">{{ error }}</p>
+                            <p class="text-sm font-medium text-red-800">{{ flashMessages.error }}</p>
                         </div>
                     </div>
                 </div>
@@ -115,8 +151,8 @@ const getTeamName = (team) => {
                                     <div class="ml-5 w-0 flex-1">
                                         <h3 class="truncate text-lg font-medium text-gray-900">{{ clip.title }}</h3>
                                         <p class="mt-1 text-sm text-gray-500">
-                                            {{ clip.game && clip.game.homeTeam ? getTeamName(clip.game.homeTeam) : 'Unknown Home Team' }} vs 
-                                            {{ clip.game && clip.game.awayTeam ? getTeamName(clip.game.awayTeam) : 'Unknown Away Team' }}
+                                            {{ clip.game && clip.game.home_team ? getTeamName(clip.game.home_team) : 'Unknown Home Team' }} vs 
+                                            {{ clip.game && clip.game.away_team ? getTeamName(clip.game.away_team) : 'Unknown Away Team' }}
                                         </p>
                                     </div>
                                 </div>
@@ -189,8 +225,19 @@ const getTeamName = (team) => {
                         Cancel
                     </SecondaryButton>
 
-                    <DangerButton class="ml-3" @click="deleteClip">
-                        Delete Clip
+                    <DangerButton 
+                        class="ml-3" 
+                        @click="deleteClip"
+                        :disabled="isDeleting"
+                    >
+                        <span v-if="isDeleting" class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Deleting...
+                        </span>
+                        <span v-else>Delete Clip</span>
                     </DangerButton>
                 </div>
             </div>

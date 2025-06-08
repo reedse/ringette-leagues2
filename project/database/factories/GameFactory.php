@@ -38,7 +38,7 @@ class GameFactory extends Factory
             'home_score' => $status === 'Completed' ? fake()->numberBetween(0, 15) : null,
             'away_score' => $status === 'Completed' ? fake()->numberBetween(0, 15) : null,
             'location' => fake()->optional()->city() . ' Arena',
-            'video_url' => fake()->optional()->url(),
+            'video_url' => fake()->optional()->passthrough('https://www.youtube.com/watch?v=4sEF4e3_O7s')
         ];
     }
 }

@@ -3,6 +3,13 @@ import { Head, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { computed } from 'vue';
 
+// Import filters constants for consistency
+import {
+    STATUS_SCHEDULED,
+    STATUS_IN_PROGRESS,
+    STATUS_COMPLETED
+} from '@/Constants/filters';
+
 // Import shadcn-vue components
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -40,37 +47,59 @@ const formatGameDate = (dateString) => {
 };
 
 const getGameResult = (game) => {
-    // Determine if the team is home or away in this game
-    const isHome = game.home_team_id === props.team.id;
-    
-    // If scores are null, the game hasn't been played yet
-    if (game.home_score === null || game.away_score === null) {
+    // First check the game status - this is the key fix
+    if (game.status === STATUS_SCHEDULED) {
         return {
-            text: 'Upcoming',
+            text: 'Scheduled',
             class: 'bg-amber-100 text-amber-800'
         };
     }
     
-    // Determine the result based on the score
-    const teamScore = isHome ? game.home_score : game.away_score;
-    const opponentScore = isHome ? game.away_score : game.home_score;
-    
-    if (teamScore > opponentScore) {
+    if (game.status === STATUS_IN_PROGRESS) {
         return {
-            text: 'Win',
-            class: 'bg-green-100 text-green-800'
-        };
-    } else if (teamScore < opponentScore) {
-        return {
-            text: 'Loss',
-            class: 'bg-red-100 text-red-800'
-        };
-    } else {
-        return {
-            text: 'Tie',
+            text: 'In Progress',
             class: 'bg-blue-100 text-blue-800'
         };
     }
+    
+    // Only for completed games, check scores to determine result
+    if (game.status === STATUS_COMPLETED) {
+        // If scores are still null even though game is completed
+        if (game.home_score === null || game.away_score === null) {
+            return {
+                text: 'Completed',
+                class: 'bg-gray-100 text-gray-800'
+            };
+        }
+        
+        // Determine if the team is home or away in this game
+        const isHome = game.home_team_id === props.team.id;
+        const teamScore = isHome ? game.home_score : game.away_score;
+        const opponentScore = isHome ? game.away_score : game.home_score;
+        
+        if (teamScore > opponentScore) {
+            return {
+                text: 'Win',
+                class: 'bg-green-100 text-green-800'
+            };
+        } else if (teamScore < opponentScore) {
+            return {
+                text: 'Loss',
+                class: 'bg-red-100 text-red-800'
+            };
+        } else {
+            return {
+                text: 'Tie',
+                class: 'bg-blue-100 text-blue-800'
+            };
+        }
+    }
+    
+    // Fallback for any other status
+    return {
+        text: game.status || 'Unknown',
+        class: 'bg-gray-100 text-gray-800'
+    };
 };
 
 const getOpponentName = (game) => {
@@ -227,7 +256,7 @@ const playersByPosition = computed(() => {
                                                     <TableCell>{{ player.first_name }} {{ player.last_name }}</TableCell>
                                                     <TableCell class="text-right">
                                                         <Button variant="ghost" size="sm" asChild>
-                                                            <Link href="#">
+                                                            <Link :href="route('players.show', player.id)">
                                                                 Profile
                                                             </Link>
                                                         </Button>
@@ -281,7 +310,7 @@ const playersByPosition = computed(() => {
                                                 <TableCell>{{ getGameScore(game) }}</TableCell>
                                                 <TableCell class="text-right">
                                                     <Button variant="ghost" size="sm" asChild>
-                                                        <Link href="#">
+                                                        <Link :href="route('games.show', game.id)">
                                                             Details
                                                         </Link>
                                                     </Button>
@@ -292,7 +321,7 @@ const playersByPosition = computed(() => {
                                     
                                     <div class="mt-4 flex justify-end">
                                         <Button variant="outline" asChild>
-                                            <Link href="#">
+                                            <Link :href="route('games.index', { team: team.id })">
                                                 View All Games
                                             </Link>
                                         </Button>

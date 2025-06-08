@@ -54,8 +54,8 @@ onMounted(() => {
             id: firstGame.id,
             homeTeamId: firstGame.home_team_id,
             awayTeamId: firstGame.away_team_id,
-            homeTeam: firstGame.homeTeam,
-            awayTeam: firstGame.awayTeam,
+            homeTeam: firstGame.home_team,
+            awayTeam: firstGame.away_team,
             gameDateTime: firstGame.game_date_time,
             scheduledDate: firstGame.scheduled_date,
             videoUrl: firstGame.video_url,
@@ -140,9 +140,7 @@ const formTitle = computed(() => {
 
 const videoUrl = computed(() => {
     if (selectedGame.value && selectedGame.value.video_url) {
-        //return selectedGame.value.video_url;
-        // Hardcoded video URL for preview, dont change this, keep as is for now
-        return "https://www.youtube.com/watch?v=4sEF4e3_O7s";
+        return selectedGame.value.video_url;
     }
     
 });
@@ -414,9 +412,9 @@ const submitForm = () => {
                                         <div class="flex justify-between items-center">
                                             <div>
                                                 <h4 class="font-medium">
-                                                    {{ selectedGame.homeTeam ? getTeamName(selectedGame.homeTeam) : 'Home Team' }} 
+                                                    {{ selectedGame.home_team ? getTeamName(selectedGame.home_team) : 'Home Team' }} 
                                                     vs 
-                                                    {{ selectedGame.awayTeam ? getTeamName(selectedGame.awayTeam) : 'Away Team' }}
+                                                    {{ selectedGame.away_team ? getTeamName(selectedGame.away_team) : 'Away Team' }}
                                                 </h4>
                                                 <p class="text-sm text-muted-foreground">{{ formatGameDate(selectedGame) }}</p>
                                             </div>
@@ -660,11 +658,12 @@ const submitForm = () => {
                               class="cursor-pointer hover:bg-muted transition-colors"
                               @click="selectGame(game)">
                             <CardContent class="p-4">
-                                <div v-if="game && (game.homeTeam || game.home_team_id)">
+                                <div v-if="game && (game.home_team || game.home_team_id)">
+                                    <h5 class="text-sm text-muted-foreground">{{ "ID: " + game.id }}</h5>
                                     <h3 class="font-medium">
-                                        {{ game.homeTeam ? getTeamName(game.homeTeam) : 'Home Team' }} 
+                                        {{ game.home_team ? getTeamName(game.home_team) : 'Home Team' }} 
                                         vs 
-                                        {{ game.awayTeam ? getTeamName(game.awayTeam) : 'Away Team' }}
+                                        {{ game.away_team ? getTeamName(game.away_team) : 'Away Team' }}
                                     </h3>
                                     <p class="text-sm text-muted-foreground">{{ formatGameDate(game) }}</p>
                                     <div class="flex items-center mt-2">

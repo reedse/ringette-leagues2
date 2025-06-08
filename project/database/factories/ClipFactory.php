@@ -25,7 +25,7 @@ class ClipFactory extends Factory
             'game_id' => Game::factory(),
             'coach_user_id' => User::factory(), // Clip creator
             'clip_title' => fake()->sentence(3),
-            'video_url' => fake()->optional()->url(),
+            'video_url' => fake()->optional()->passthrough('https://www.youtube.com/watch?v=4sEF4e3_O7s'),
             'start_time_seconds' => $startTime,
             'end_time_seconds' => $endTime,
             'notes' => fake()->optional()->paragraph(),

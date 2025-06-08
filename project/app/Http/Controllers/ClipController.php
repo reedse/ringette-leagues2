@@ -462,11 +462,23 @@ class ClipController extends Controller
         
         // Check if user is the coach who created the clip
         if ($clip->coach_user_id !== $user->id) {
+            Log::warning('ClipController@show - Permission denied', [
+                'clip_id' => $clip->id,
+                'clip_coach_id' => $clip->coach_user_id,
+                'current_user_id' => $user->id
+            ]);
             return redirect()->route('coach.clips')
                 ->with('error', 'You do not have permission to view this clip.');
         }
 
+        // Load relationships
         $clip->load(['game.homeTeam', 'game.awayTeam', 'players']);
+        
+        // Ensure video_url is available - use game's video_url if clip doesn't have one
+        if (!$clip->video_url && $clip->game && $clip->game->video_url) {
+            $clip->video_url = $clip->game->video_url;
+            Log::info('ClipController@show - Using game video URL for clip display');
+        }
 
         return Inertia::render('Coach/ClipDetail', [
             'clip' => $clip,

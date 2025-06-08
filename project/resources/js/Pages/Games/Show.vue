@@ -1,16 +1,24 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { format } from 'date-fns';
 
+// Import filters constants for consistency
+import {
+    STATUS_SCHEDULED,
+    STATUS_IN_PROGRESS,
+    STATUS_COMPLETED
+} from '@/Constants/filters';
+
 // Import shadcn-vue components
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/Components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Badge } from "@/Components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
+import { Separator } from "@/Components/ui/separator";
+import { Avatar, AvatarFallback } from "@/Components/ui/avatar";
 import { ExternalLink } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -23,17 +31,19 @@ const formatDate = (dateTime) => {
     return format(new Date(dateTime), 'MMMM d, yyyy • h:mm a');
 };
 
-// Get badge variant based on game status
+// Get badge variant based on game status (updated to match Games/Index.vue)
 const getStatusVariant = (status) => {
     switch (status) {
-        case 'Scheduled':
+        case STATUS_SCHEDULED:
             return 'badge-scheduled';
-        case 'In Progress':
+        case STATUS_IN_PROGRESS:
             return 'badge-in-progress';
-        case 'Completed':
+        case STATUS_COMPLETED:
             return 'badge-completed';
+        case 'cancelled':
         case 'Cancelled':
             return 'badge-cancelled';
+        case 'draft':
         case 'Draft':
             return 'badge-draft';
         default:
@@ -41,9 +51,9 @@ const getStatusVariant = (status) => {
     }
 };
 
-// Generate result text based on scores
+// Generate result text based on scores (updated logic)
 const getResultText = (game) => {
-    if (game.status !== 'Completed' || game.home_score === null || game.away_score === null) {
+    if (game.status !== STATUS_COMPLETED || game.home_score === null || game.away_score === null) {
         return null;
     }
     
@@ -66,17 +76,22 @@ const formatPenaltyTime = (minutes) => {
     return `${minutes} min`;
 };
 
-// Helper to extract YouTube video ID from URL
-const getYoutubeEmbedUrl = (url) => {
-    if (!url) return null;
+// Extract YouTube video ID from URL
+const youtubeVideoId = computed(() => {
+    if (!props.game.video_url) return null;
     
-    // Try to extract YouTube video ID
+    const url = props.game.video_url;
     const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
     const match = url.match(regExp);
-    const videoId = (match && match[7].length === 11) ? match[7] : null;
     
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-};
+    return (match && match[7].length === 11) ? match[7] : null;
+});
+
+// YouTube embedded URL
+const youtubeEmbedUrl = computed(() => {
+    if (!youtubeVideoId.value) return null;
+    return `https://www.youtube.com/embed/${youtubeVideoId.value}`;
+});
 </script>
 
 <template>
@@ -108,6 +123,8 @@ const getYoutubeEmbedUrl = (url) => {
                                 </CardTitle>
                                 <CardDescription>
                                     {{ formatDate(game.game_date_time) }}
+                                    <br>
+                                    Game ID: {{ game.id }}
                                 </CardDescription>
                             </div>
                             <Badge :variant="getStatusVariant(game.status)" class="mt-2 sm:mt-0">
@@ -164,7 +181,7 @@ const getYoutubeEmbedUrl = (url) => {
                     <TabsList class="grid w-full grid-cols-3">
                         <TabsTrigger value="player-stats">Player Stats</TabsTrigger>
                         <TabsTrigger value="penalties">Penalties</TabsTrigger>
-                        <TabsTrigger value="video">Video & Clips</TabsTrigger>
+                        <TabsTrigger value="video">Video</TabsTrigger>
                     </TabsList>
                     
                     <TabsContent value="player-stats">
@@ -304,65 +321,36 @@ const getYoutubeEmbedUrl = (url) => {
                     <TabsContent value="video">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Video & Clips</CardTitle>
-                                <CardDescription>Game video and coach clips</CardDescription>
+                                <CardTitle>Game Video</CardTitle>
+                                <CardDescription>Watch the complete game video</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <!-- Game Video -->
-                                <div v-if="game.video_url" class="mb-8">
-                                    <h3 class="text-lg font-medium mb-4">Game Video</h3>
-                                    <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden">
-                                        <iframe 
-                                            v-if="getYoutubeEmbedUrl(game.video_url)"
-                                            class="w-full h-full rounded-lg"
-                                            :src="getYoutubeEmbedUrl(game.video_url)"
-                                            title="Game Video"
-                                            frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            allowfullscreen>
-                                        </iframe>
-                                        <div v-else class="w-full h-full flex items-center justify-center bg-muted rounded-lg">
-                                            <Button variant="outline" asChild>
-                                                <a :href="game.video_url" target="_blank" rel="noopener noreferrer">
-                                                    <ExternalLink class="mr-2 h-4 w-4" />
-                                                    View Video
-                                                </a>
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Coach Clips -->
-                                <div>
-                                    <h3 class="text-lg font-medium mb-4">Clips</h3>
-                                    
-                                    <div v-if="!game.clips || game.clips.length === 0" class="text-center py-6">
-                                        <p class="text-muted-foreground">No clips have been created for this game yet.</p>
-                                    </div>
-                                    
-                                    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <Card v-for="clip in game.clips" :key="clip.id" class="overflow-hidden">
-                                            <CardHeader class="pb-2">
-                                                <CardTitle class="text-lg">{{ clip.title }}</CardTitle>
-                                                <CardDescription>
-                                                    {{ clip.start_time }}s to {{ clip.end_time }}s
-                                                </CardDescription>
-                                            </CardHeader>
-                                            <CardContent class="pb-2">
-                                                <p class="text-sm">{{ clip.description }}</p>
-                                            </CardContent>
-                                            <CardFooter class="flex justify-between pt-2">
-                                                <p class="text-xs text-muted-foreground">
-                                                    Shared with {{ clip.players?.length || 0 }} players
-                                                </p>
-                                                <Button size="sm" asChild>
-                                                    <a :href="clip.video_url" target="_blank" rel="noopener noreferrer">
-                                                        View Clip
+                                <div v-if="game.video_url">
+                                    <Card class="overflow-hidden">
+                                        <CardContent class="p-0 aspect-video">
+                                            <iframe 
+                                                v-if="youtubeEmbedUrl"
+                                                :src="youtubeEmbedUrl" 
+                                                class="w-full h-full" 
+                                                frameborder="0" 
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                allowfullscreen
+                                                title="Game Video">
+                                            </iframe>
+                                            <div v-else class="w-full h-full flex items-center justify-center bg-muted">
+                                                <Button variant="outline" asChild>
+                                                    <a :href="game.video_url" target="_blank" rel="noopener noreferrer">
+                                                        <ExternalLink class="mr-2 h-4 w-4" />
+                                                        View Video
                                                     </a>
                                                 </Button>
-                                            </CardFooter>
-                                        </Card>
-                                    </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                                <div v-else class="text-center py-12">
+                                    <p class="text-muted-foreground text-lg">No video available for this game.</p>
+                                    <p class="text-sm text-muted-foreground mt-2">The video will appear here once it's uploaded.</p>
                                 </div>
                             </CardContent>
                         </Card>

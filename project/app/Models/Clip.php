@@ -46,6 +46,18 @@ class Clip extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'title',
+        'description', 
+        'start_time',
+        'end_time'
+    ];
+
+    /**
      * Boot the model.
      */
     protected static function boot()
